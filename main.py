@@ -45,8 +45,6 @@ class MyApp(QMainWindow):
             self.status.setText(
                 f'Имя организации: {right_name}\nТип организации: {right_category}\nАдресс: {right_address}')
             self.pushButton.setEnabled(True)
-            # QMessageBox.question(self, 'Ошибка', 'Произошла ошибка во время поиска организации',
-            #                      QMessageBox.StandardButton.Ok)
         except Exception as e:
             self.status.setText(
                 f'Произошла ошибка во время поиска организации: {e}')
