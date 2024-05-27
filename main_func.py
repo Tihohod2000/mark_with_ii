@@ -52,13 +52,6 @@ def open_drive(name):
     # driver = webdriver.Chrome(options = option)
     # driver = webdriver.Chrome()
 
-    # cookies = pickle.load(open("cookies.pkl", "rb"))
-    # for cookie in cookies:
-    #     try:
-    #         driver.add_cookie(cookie)
-    #     except Exception as e:
-    #         print(e)
-
     driver.get(
         'https://yandex.ru/maps/39/rostov-na-donu/?ll=39.711332%2C47.236880&mode=poi&poi%5Bpoint%5D=39.712270%2C47.237332&poi%5Buri%5D=ymapsbm1%3A%2F%2Forg%3Foid%3D100522677108&z=17.8')
     current_url = driver.current_url
@@ -68,7 +61,6 @@ def open_drive(name):
         quit()
     #     # showcaptcha = input("Прошёл")
     #     pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb"))
-
 
     time.sleep(1)
     searchBox = driver.find_element('class name', 'input__control')
@@ -120,20 +112,14 @@ def open_drive(name):
         # driver.quit()
     return right_name, right_category, right_address, number, mark_of_map
 
-        # time.sleep(20)
+    # time.sleep(20)
     # print("Готово")
     time.sleep(2)
-
-
-
 
 
 def predict(number):
     ###Парсинг отзывов
     company_reviews = parse_company_reviews(number)
-    # driver.close()
-    # driver.quit()
-    # print(company_reviews)
     time.sleep(2)
 
     if len(company_reviews['company_reviews']) == 0:
@@ -141,7 +127,6 @@ def predict(number):
         mark_1 = 0
         mark_2 = 0
         return mark_1, mark_2
-
 
     try:
         if company_reviews['error'] == 'Страница не найдена':
@@ -151,13 +136,6 @@ def predict(number):
         print(e)
     # Извлекаем все значения из атрибута 'text' из каждого элемента списка 'company_reviews'(Отзывы)
     text_values = [review['text'] for review in company_reviews['company_reviews']]
-
-    # Выводим полученные значения
-    # for text in text_values:
-    #     print(text)
-
-    # driver.close()
-    # driver.quit()
 
     ###Предсказание оценок моделью
     loaded_model = tf.keras.models.load_model("model\model_LSTM_2")
