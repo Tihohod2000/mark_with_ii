@@ -100,7 +100,6 @@ class MyApp(QMainWindow):
                             cursor.close()
                             connection.close()
                             print("Соединение с PostgreSQL закрыто")
-                    #         проверка
                     else:
                         # Пример выполнения INSERT-запроса (если требуется)
                         if len(records) > 0:
