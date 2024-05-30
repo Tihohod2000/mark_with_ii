@@ -132,9 +132,9 @@
    <widget class="QLabel" name="status">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>10</x>
       <y>220</y>
-      <width>481</width>
+      <width>641</width>
       <height>71</height>
      </rect>
     </property>

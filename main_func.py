@@ -83,7 +83,10 @@ def open_drive(name):
         soup = BeautifulSoup(html, 'html.parser')
         right_name = soup.find("a", class_='card-title-view__title-link').text
         right_category = soup.find("a", class_='business-categories-view__category').text
-        right_address = soup.find("div", class_='business-contacts-view__address-link').text
+        # right_address = soup.find("div", class_='business-contacts-view__address-link').text
+        meta_tag = soup.find('meta', {'itemprop': 'address'})
+        right_address = meta_tag.get('content')
+        # print(right_address)
         mark_of_map = soup.find("span", class_='business-rating-badge-view__rating-text').text
         print(right_name)
         print(right_category)
@@ -97,7 +100,9 @@ def open_drive(name):
         soup = BeautifulSoup(html, 'html.parser')
         right_name = soup.find("a", class_='card-title-view__title-link').text
         right_category = soup.find("a", class_='business-categories-view__category').text
-        right_address = soup.find("div", class_='business-contacts-view__address-link').text
+        # right_address = soup.find("div", class_='business-contacts-view__address-link').text
+        meta_tag = soup.find('meta', {'itemprop': 'address'})
+        right_address = meta_tag.get('content')
         mark_of_map = soup.find("span", class_='business-rating-badge-view__rating-text').text
         print(right_name)
         print(right_category)
@@ -168,8 +173,8 @@ def predict(number):
 
 def discon():
     try:
-        cursor.close()
-        connection.close()
+        # cursor.close()
+        # connection.close()
         print("Соединение с PostgreSQL закрыто")
         driver.close()
         driver.quit()

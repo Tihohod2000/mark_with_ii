@@ -16,6 +16,10 @@ class MyApp(QMainWindow):
         self.pushButton_2.clicked.connect(self.handle_button_click)
         self.pushButton.clicked.connect(self.handle_button_click_2)
         self.pushButton_3.clicked.connect(self.export_to_csv)
+        global connection
+        global cursor
+        connection = db_conn.create_connection()
+
 
     def handle_button_click(self):
         self.pushButton.setEnabled(False)
@@ -55,7 +59,7 @@ class MyApp(QMainWindow):
 
     def handle_button_click_2(self):
 
-        connection = db_conn.create_connection()
+        # connection = db_conn.create_connection()
         if connection is not None:
 
             try:
@@ -120,10 +124,10 @@ class MyApp(QMainWindow):
                                              'Все операции выполнены успешно. Оценка была произведена на свежих данных',
                                              QMessageBox.StandardButton.Ok)
 
-                        if connection:
-                            cursor.close()
-                            connection.close()
-                            print("Соединение с PostgreSQL закрыто")
+                        # if connection:
+                        #     cursor.close()
+                        #     connection.close()
+                        #     print("Соединение с PostgreSQL закрыто")
 
                     # Для демонстрации выводим текст в консоль
                     print("Text from textEdit:", mark_1)
@@ -161,6 +165,13 @@ class MyApp(QMainWindow):
                                      QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
             print("Окно закрывается. Выполнение нужных действий...")
+            try:
+                if connection is not None:
+                    connection.close()
+                # if cursor is not None:
+                #     cursor.close()
+            except Exception as e2:
+                print(e2)
             main_func.discon()
             event.accept()
         else:
@@ -173,7 +184,7 @@ class MyApp(QMainWindow):
 
     def save_data_to_csv(self, output_file):
         try:
-            connection = db_conn.create_connection()
+            # connection = db_conn.create_connection()
             if connection is not None:
                 cursor = connection.cursor()
                 cursor.execute('''SELECT name AS "Наименование организации", info AS "Тип организации", date AS "Дата обновления", id_of_map AS "Уникальный номер", net_mark AS "Оценка", address AS "Адрес" FROM info''')
@@ -192,11 +203,11 @@ class MyApp(QMainWindow):
             print("Ошибка при работе с PostgreSQL", error)
             QMessageBox.question(self, 'Ошибка', 'Произошла ошибка при сохранении данных в csv файл',
                                  QMessageBox.StandardButton.Ok)
-        finally:
-            if connection:
-                cursor.close()
-                connection.close()
-                print("Соединение с PostgreSQL закрыто")
+        # finally:
+        #     if connection:
+        #         cursor.close()
+        #         connection.close()
+        #         print("Соединение с PostgreSQL закрыто")
 
 
 if __name__ == "__main__":
