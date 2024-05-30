@@ -19,6 +19,7 @@ class MyApp(QMainWindow):
 
     def handle_button_click(self):
         self.pushButton.setEnabled(False)
+        self.checkBox.setEnabled(False)
         # Получаем текст из textEdit и textEdit_2
         text1 = self.textEdit.toPlainText()
         text2 = self.textEdit_2.toPlainText()
@@ -45,6 +46,7 @@ class MyApp(QMainWindow):
             self.status.setText(
                 f'Имя организации: {right_name}\nТип организации: {right_category}\nАдресс: {right_address}')
             self.pushButton.setEnabled(True)
+            self.checkBox.setEnabled(True)
         except Exception as e:
             self.status.setText(
                 f'Произошла ошибка во время поиска организации: {e}')
@@ -62,17 +64,19 @@ class MyApp(QMainWindow):
                 select_query = f"SELECT * FROM info WHERE id_of_map = '{id_of_company}';"
                 cursor.execute(select_query)
                 records = cursor.fetchall()
-                time_difference = 9999
 
-                time_now = datetime.date.today()
+
+
                 if len(records) > 0:
+                    time_now = datetime.date.today()
+                    # time_difference = 9999
                     old_time = records[0][3]
                     time_difference = (time_now - old_time).days
 
-                if len(records) > 0 and time_difference < 5:
+                if len(records) > 0 and time_difference < 5 and self.checkBox.isChecked() == False:
                     print("Найдена запись")
                     print(records)
-                    self.mark.setText(f'Оценка искусственного интелекта: {records[0][6]}')
+                    self.mark.setText(f'Оценка искусственного интелекта: {records[0][5]}')
                     if connection:
                         cursor.close()
                         connection.close()
@@ -102,14 +106,14 @@ class MyApp(QMainWindow):
                         # Пример выполнения INSERT-запроса (если требуется)
                         if len(records) > 0:
                             insert_query = (
-                                f"UPDATE info SET mark_of_map = '{mark_of_map}', net_mark = '{mark_1}', date = CURRENT_TIMESTAMP WHERE id_of_map = '{id_of_company}';")
+                                f"UPDATE info SET net_mark = '{mark_1}', date = CURRENT_TIMESTAMP WHERE id_of_map = '{id_of_company}';")
                         else:
                             insert_query = (
-                                f"INSERT INTO info (name, info, mark_of_map, net_mark, id_of_map, date, address) VALUES "
-                                f"('{right_name}', '{right_category}', '{mark_of_map}', '{mark_1}', '{id_of_company}', CURRENT_TIMESTAMP, '{right_address}');")
+                                f"INSERT INTO info (name, info,  net_mark, id_of_map, date, address) VALUES "
+                                f"('{right_name}', '{right_category}', '{mark_1}', '{id_of_company}', CURRENT_TIMESTAMP, '{right_address}');")
                         cursor.execute(insert_query)
                         connection.commit()  # Фиксация изменений
-                        print("Запись успешно вставлена.")
+                        print("Запись успешно добавлена в бд.")
                         self.mark.setText(
                             f'Оценка искусственного интелекта: {mark_1}')
                         QMessageBox.question(self, 'Уведомление',
@@ -172,7 +176,7 @@ class MyApp(QMainWindow):
             connection = db_conn.create_connection()
             if connection is not None:
                 cursor = connection.cursor()
-                cursor.execute("SELECT * FROM info")
+                cursor.execute('''SELECT name AS "Наименование организации", info AS "Тип организации", date AS "Дата обновления", id_of_map AS "Уникальный номер", net_mark AS "Оценка", address AS "Адрес" FROM info''')
                 columns = [desc[0] for desc in cursor.description]
                 rows = cursor.fetchall()
                 with open(output_file, 'w', newline='', encoding='cp1251') as csvfile:
