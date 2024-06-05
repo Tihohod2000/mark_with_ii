@@ -42,10 +42,10 @@ class MyApp(QMainWindow):
         global right_address
 
         try:
-            right_name, right_category, right_address, id_of_company, mark_of_map = main_func.open_drive(
+            right_name, right_category, right_address, id_of_company = main_func.open_drive(
                 text1 + ' ' + text2)
 
-            mark_of_map = str(mark_of_map.replace(".", ","))
+            # mark_of_map = str(mark_of_map.replace(".", ","))
 
             self.status.setText(
                 f'Имя организации: {right_name}\nТип организации: {right_category}\nАдресс: {right_address}')
@@ -92,7 +92,7 @@ class MyApp(QMainWindow):
                 else:
 
                     try:
-                        mark_1, mark_2 = main_func.predict(id_of_company)
+                        mark_1, mark_2, count_reviews = main_func.predict(id_of_company)
                         mark_1 = str(mark_1).replace('.', ',')
                         mark_2 = str(mark_2).replace('.', ',')
                     except Exception:
@@ -121,7 +121,7 @@ class MyApp(QMainWindow):
                         self.mark.setText(
                             f'Оценка искусственного интелекта: {mark_1}')
                         QMessageBox.question(self, 'Уведомление',
-                                             'Все операции выполнены успешно. Оценка была произведена на свежих данных',
+                                             f'Все операции выполнены успешно. Оценка была произведена на {count_reviews} отзывах',
                                              QMessageBox.StandardButton.Ok)
 
                         # if connection:

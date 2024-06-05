@@ -27,26 +27,34 @@ from selenium.webdriver.chrome.options import Options
 print(tf.__version__)
 
 warnings.filterwarnings('ignore')
+chrome_options = ChromeOptions()
+chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+global driver
+driver = undetected_chromedriver.Chrome(headless=True)
 
 from keras.models import load_model
 
 
 def open_drive(name):
     # Создаем экземпляр драйвера с указанием опций
-    chrome_options = ChromeOptions()
     # chrome_options = Options()
     # chrome_options.add_argument("--headless")  # Запуск браузера в режиме headless
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
-    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    ###################################
+    # chrome_options = ChromeOptions()
+    # chrome_options.add_argument(
+    #     "user-agent=Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0")
+    # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    # chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    # global driver
+    # driver = undetected_chromedriver.Chrome(headless=True)
+######################################################
     # chrome_options.add_experimental_option("useAutomationExtension", False)
 
     # name = input("Введите название и адресс: ")
-    global driver
     # driver = undetected_chromedriver.Chrome(options=chrome_options)
-    driver = undetected_chromedriver.Chrome(headless=True)
     # driver = undetected_chromedriver.Chrome()
     # driver = webdriver.Chrome(options=chrome_options)  # Запуск браузера в режиме headles
     # driver = webdriver.Chrome(options = option)
@@ -87,7 +95,7 @@ def open_drive(name):
         meta_tag = soup.find('meta', {'itemprop': 'address'})
         right_address = meta_tag.get('content')
         # print(right_address)
-        mark_of_map = soup.find("span", class_='business-rating-badge-view__rating-text').text
+        # mark_of_map = soup.find("span", class_='business-rating-badge-view__rating-text').text
         print(right_name)
         print(right_category)
         print(right_address)
@@ -115,32 +123,75 @@ def open_drive(name):
         print(number)
         # driver.close()
         # driver.quit()
-    return right_name, right_category, right_address, number, mark_of_map
+    return right_name, right_category, right_address, number
 
     # time.sleep(20)
     # print("Готово")
     time.sleep(2)
 
 
-def predict(number):
-    ###Парсинг отзывов
-    company_reviews = parse_company_reviews(number)
+def parsing(number):
+    driver.get(f"https://yandex.ru/maps/org/{number}/reviews/")
     time.sleep(2)
 
-    if len(company_reviews['company_reviews']) == 0:
-        print("нет отзывов")
-        mark_1 = 0
-        mark_2 = 0
-        return mark_1, mark_2
+    SCROLL_PAUSE_TIME = 2
+    # html = driver.page_source
+    # soup = BeautifulSoup(html, 'html.parser')
+    # reviews_container = soup.find('div', 'business-reviews-card-view__reviews-container')
+    # reviews_container = driver.find_element('class name', 'business-reviews-card-view__review')
+    elements = driver.find_elements('class name', 'business-reviews-card-view__review')
 
-    try:
-        if company_reviews['error'] == 'Страница не найдена':
-            print("Ошибка парсинга отзывов")
-            quit()
-    except Exception as e:
-        print(e)
-    # Извлекаем все значения из атрибута 'text' из каждого элемента списка 'company_reviews'(Отзывы)
-    text_values = [review['text'] for review in company_reviews['company_reviews']]
+    countqwe = driver.find_element('class name', 'tabs-select-view__title._name_reviews._selected')
+    count = int(countqwe.find_element('class name', 'tabs-select-view__counter').text)
+    # reviews_container = driver.find_element('class name', 'business-card-view__section')
+
+    # Проверка, что элементы найдены
+    while count > len(elements):
+        # Выбор последнего элемента из списка
+        last_element = elements[-1]
+
+        # Прокрутка до последнего элемента
+        last_element.location_once_scrolled_into_view
+        time.sleep(0.1)
+
+        elements = driver.find_elements('class name', 'business-reviews-card-view__review')
+
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    reviewsAll = soup.find_all("span", class_='business-review-view__body-text')
+    # reviews_2 = soup.find("span", class_='spoiler-view__text')
+
+    reviews_text = []
+
+    if reviewsAll:
+        for review in reviewsAll:
+            reviews_text.append(review.text)
+
+    print(len(reviewsAll))
+    return reviews_text, count
+
+
+def predict(number):
+    ###Парсинг отзывов
+    # company_reviews = parse_company_reviews(number)
+    # company_reviews = parsing(number)
+    time.sleep(2)
+    #
+    # if len(company_reviews['company_reviews']) == 0:
+    #     print("нет отзывов")
+    #     mark_1 = 0
+    #     mark_2 = 0
+    #     return mark_1, mark_2
+    #
+    # try:
+    #     if company_reviews['error'] == 'Страница не найдена':
+    #         print("Ошибка парсинга отзывов")
+    #         quit()
+    # except Exception as e:
+    #     print(e)
+    # # Извлекаем все значения из атрибута 'text' из каждого элемента списка 'company_reviews'(Отзывы)
+    # text_values = [review['text'] for review in company_reviews['company_reviews']]
+    text_values, count_reviews = parsing(number)
 
     ###Предсказание оценок моделью
     loaded_model = tf.keras.models.load_model("model\model_LSTM_2")
@@ -168,7 +219,7 @@ def predict(number):
     print(mark_1)
     print(mark_2)
     print("Конец программы")
-    return mark_1, mark_2
+    return mark_1, mark_2, count_reviews
 
 
 def discon():
