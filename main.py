@@ -69,8 +69,6 @@ class MyApp(QMainWindow):
                 cursor.execute(select_query)
                 records = cursor.fetchall()
 
-
-
                 if len(records) > 0:
                     time_now = datetime.date.today()
                     # time_difference = 9999
@@ -121,14 +119,8 @@ class MyApp(QMainWindow):
                         self.mark.setText(
                             f'Оценка искусственного интелекта: {mark_1}')
                         QMessageBox.question(self, 'Уведомление',
-                                             f'Все операции выполнены успешно. Оценка была произведена на {count_reviews} отзывах',
+                                             f'Все операции выполнены успешно. Оценка была произведена на свежих отзывах',
                                              QMessageBox.StandardButton.Ok)
-
-                        # if connection:
-                        #     cursor.close()
-                        #     connection.close()
-                        #     print("Соединение с PostgreSQL закрыто")
-
                     # Для демонстрации выводим текст в консоль
                     print("Text from textEdit:", mark_1)
                     print("Text from textEdit_2:", mark_2)
@@ -136,26 +128,21 @@ class MyApp(QMainWindow):
                 print(f"Ошибка декодирования: {e}")
                 QMessageBox.question(self, 'Ошибка', 'Произошла ошибка во время работы с базой данных',
                                      QMessageBox.StandardButton.Ok)
-
         else:
             # Получаем текст из textEdit и textEdit_2
-
             try:
                 mark_1, mark_2 = main_func.predict(id_of_company)
             except Exception:
                 QMessageBox.question(self, 'Ошибка', 'Произошла ошибка во время получения отзывов',
                                      QMessageBox.StandardButton.Ok)
                 return
-
             if mark_1 == 0 or mark_2 == 0:
                 self.mark.setText(f'Нет отзывов на картах')
             else:
                 self.mark.setText(f'Оценка искусственного интелекта: {mark_1}')
-
             # Для демонстрации выводим текст в консоль
             print("Text from textEdit:", mark_1)
             print("Text from textEdit_2:", mark_2)
-
         QMessageBox.question(self, 'Уведомление', 'Все операции выполнены успешно',
                              QMessageBox.StandardButton.Ok)
 
@@ -187,7 +174,8 @@ class MyApp(QMainWindow):
             # connection = db_conn.create_connection()
             if connection is not None:
                 cursor = connection.cursor()
-                cursor.execute('''SELECT name AS "Наименование организации", info AS "Тип организации", date AS "Дата обновления", id_of_map AS "Уникальный номер", net_mark AS "Оценка", address AS "Адрес" FROM info''')
+                cursor.execute('''SELECT name AS "Наименование организации", info AS "Тип организации", date AS 
+                "Дата обновления", id_of_map AS "Уникальный номер", net_mark AS "Оценка", address AS "Адрес" FROM info''')
                 columns = [desc[0] for desc in cursor.description]
                 rows = cursor.fetchall()
                 with open(output_file, 'w', newline='', encoding='cp1251') as csvfile:

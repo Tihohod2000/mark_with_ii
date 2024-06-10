@@ -33,7 +33,8 @@ chrome_options.add_argument(
 chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
 global driver
-driver = undetected_chromedriver.Chrome(headless=True)
+# driver = undetected_chromedriver.Chrome(headless=True)
+driver = undetected_chromedriver.Chrome()
 
 from keras.models import load_model
 
@@ -133,36 +134,27 @@ def open_drive(name):
 def parsing(number):
     driver.get(f"https://yandex.ru/maps/org/{number}/reviews/")
     time.sleep(2)
-
-    SCROLL_PAUSE_TIME = 2
-    # html = driver.page_source
-    # soup = BeautifulSoup(html, 'html.parser')
-    # reviews_container = soup.find('div', 'business-reviews-card-view__reviews-container')
-    # reviews_container = driver.find_element('class name', 'business-reviews-card-view__review')
     elements = driver.find_elements('class name', 'business-reviews-card-view__review')
 
     countqwe = driver.find_element('class name', 'tabs-select-view__title._name_reviews._selected')
     count = int(countqwe.find_element('class name', 'tabs-select-view__counter').text)
-    # reviews_container = driver.find_element('class name', 'business-card-view__section')
 
     # Проверка, что элементы найдены
-    while count > len(elements):
+    while count > len(elements) and len(elements) < 600:
         # Выбор последнего элемента из списка
         last_element = elements[-1]
 
         # Прокрутка до последнего элемента
         last_element.location_once_scrolled_into_view
-        time.sleep(0.1)
+        time.sleep(1)
 
         elements = driver.find_elements('class name', 'business-reviews-card-view__review')
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     reviewsAll = soup.find_all("span", class_='business-review-view__body-text')
-    # reviews_2 = soup.find("span", class_='spoiler-view__text')
 
     reviews_text = []
-
     if reviewsAll:
         for review in reviewsAll:
             reviews_text.append(review.text)
@@ -172,10 +164,9 @@ def parsing(number):
 
 
 def predict(number):
-    ###Парсинг отзывов
+    # ##Парсинг отзывов
     # company_reviews = parse_company_reviews(number)
     # company_reviews = parsing(number)
-    time.sleep(2)
     #
     # if len(company_reviews['company_reviews']) == 0:
     #     print("нет отзывов")
